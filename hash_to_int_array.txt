@@ -1,0 +1,57 @@
+You're right that a **hash table** is an **array**, and the **final hash value** is a large number (typically a 64-bit integer). So how do we map a **large hash** to a valid **array index**? That’s where **modulo (`%`) operations** and **collision handling** come in.  
+
+---
+
+## **How the Final Hash Works in Hash Tables**
+### **Step 1: Compute the Hash**
+The function `hash_string_fnv1a64("hello")` returns a **64-bit number**, e.g.:
+```
+0x94f5f3a828cb353f  (in decimal: 10710344124993709567)
+```
+This number is way too large to be used directly as an index in a small array (e.g., size 100).
+
+### **Step 2: Convert Hash to an Array Index**
+A hash table is an **array** of size `capacity`. To get a valid index, we use:
+```c
+index = hash % capacity;
+```
+For example, if the table has `capacity = 100`, we do:
+```
+index = 10710344124993709567 % 100 = 67
+```
+Now, we can **store the key-value pair** at index `67` in the array.
+
+---
+
+## **Why Do We Use `% capacity`?**
+The **modulo operation** ensures that the **hash always maps to a valid index** within the array bounds.
+
+- If `capacity = 100`, the index will always be between `0-99`.
+- This prevents **out-of-bounds errors**.
+
+---
+
+## **Step 3: Handling Collisions**
+Since different keys may sometimes produce the **same index**, we need a **collision resolution strategy**. Common methods:
+
+1. **Chaining (Separate Chaining)**
+   - Each index in the array stores a **linked list** of key-value pairs.
+   - If two keys hash to the same index, they are stored in a list at that index.
+   - Example:
+     ```
+     hash("hello") % 10 → index 3 → store ["hello", value]
+     hash("world") % 10 → index 3 → store ["world", value] in same list
+     ```
+
+2. **Open Addressing (Linear Probing, Quadratic Probing)**
+   - If an index is already occupied, find the **next available slot**.
+   - Example: If index `3` is occupied, try `4`, `5`, `6`... until an empty spot is found.
+
+---
+
+## **Summary**
+✅ **Final hash is a large number** (e.g., `10710344124993709567`).  
+✅ **Modulo (`%`) reduces it** to a valid index within the array.  
+✅ **Collisions are handled** via **chaining** or **probing**.  
+
+This is how hash functions allow us to store and retrieve data efficiently in **O(1) time complexity** on average. 🚀
