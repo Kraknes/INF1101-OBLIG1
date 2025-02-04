@@ -3,6 +3,8 @@
 
 #include <stdlib.h>
 
+// Previous linked-list implementation oblig 0
+// ./bin/debug/wordfreq data/oxford-dict.txt 20 4 10 --test
 
 typedef struct lnode lnode_t;
 struct lnode {
@@ -41,7 +43,7 @@ list_t *list_create(cmp_fn cmpfn) {
 
 void list_destroy(list_t *list, free_fn item_free) {
     free(list);
-    free(item_free); // Denne må fikses!
+    free(item_free); // Denne må fikses! Itemfree er en funksjon, bruk den på alle noder
 }
 
 size_t list_length(list_t *list) {
@@ -148,7 +150,20 @@ int list_contains(list_t *list, void *item) {
 }
 
 void list_sort(list_t *list) {
- // hva skal hit?
+ // hva skal hit? Hentet nedenfor fra Oblig 0, men vet ikke helt hva den gjrø
+
+    // bubblesort her 
+
+     /* Recursively sort the list */
+    list->head = mergesort_(list->head, list->cmpfn);
+
+    /* Fix the tail and prev links */
+    lnode_t *prev = NULL;
+    for (lnode_t *n = list->head; n != NULL; n = n->next) {
+        n->prev = prev;
+        prev = n;
+    }
+    list->tail = prev;
 }
 
 list_iter_t *list_createiter(list_t *list) {
