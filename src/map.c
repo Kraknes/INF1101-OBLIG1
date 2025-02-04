@@ -2,7 +2,7 @@
 #include "map.h"
 #include "defs.h"
 
-
+# test
 // Hashmap opplegg: Key kan være ordet/string -->Sendes gjennom hasher--> får ut en minne til en verdi/count
 
 typedef struct node h_node;
