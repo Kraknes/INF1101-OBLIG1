@@ -12,7 +12,7 @@
 /**
  * Type of map. `map_t` is an alias for `struct map`
  */
-typedef struct map map_t;
+typedef struct map_t map_t;
 
 /**
  * @brief Creates a new, empty map

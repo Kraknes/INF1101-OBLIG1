@@ -1,32 +1,23 @@
 # wordfreq
-Simple command line (CLI) program to list the frequency of words in a given input file.  
+Simple command line program to list the frequency of words in a given input file.  
 
-# Directory structure
+# Directory Structure
 ```
-p1-pre/
-├── data/
-│   └── oxford_dict.txt   - Dictionary dataset
-├── include/
-│   ├── common.h     - Common functionality
-│   ├── defs.h       - Various definitions
-│   ├── futil.h      - File utilities
-│   ├── list.h       - List interface
-│   ├── map.h        - Map interface
-│   ├── printing.h   - Printing/assertion macros
-│   ├── tests.h      - Exposed test functions
-│   └── testutil.h   - Utility for implementing tests
-├── src/
-│   ├── common.c     - Common functionality
-│   ├── futil.c      - File utilities
-│   ├── linkedlist.c - Linked list implementation
-│   ├── map.c        - Map implementation
-│   ├── main.c       - The main program
-│   ├── testlist.c   - Tests for the list interface
-│   ├── testmap.c    - Tests for the map interface
-│   └── testutil.c   - Utility for implementing tests
-├── README.md        - Details on how to build and run
-└── Makefile         - Makefile for the project
+p1
+  `--src
+  `--include
+  `--data
+  `--obj
+  `--bin
+     `--debug
+     `--release
 ```
+
+* `src/` - source files for the main program and dependancies
+* `include/` - header files, specifying various interface/APIs
+* `data/` - data files meant to be utilized by (or produced by) a program
+* `bin/` - output directory for compiled binary targets. Running `make distclean` will remove this folder.
+
 
 # Compiling the program
 A makefile is provided to simplify compiling the program. The makefile provides two configurations for compiling the program, _debug_ and _release_.  
@@ -46,20 +37,61 @@ Building in release-mode also directs the compiler to completely remove:
 
 
 # Usage
-`./<exec_path> [--tests, --fpath=...]`
+`./<exec_path> <fpath> <min_wc> <min_wl> <lim_n_results>`
 
-### Runtime arguments (`<arguments>`)
-Provide one or more. Order of provided arguments does not matter.
-* `--tests` - run tests
-* `--fpath=...` - specify a file to run the program with
+## Runtime Arguments
+* `<fpath>`  
+Path to a readable file. The file will never be modified.
+* `<min_wc>`  
+Exclude words that occur less times than this value. 1 to include all.
+* `<min_wl>`  
+Exclude words shorter than this value. 1 to include all.
+* `<lim_n_results>`  
+Print at most this many results. 0 to print all.
 
-If the `--tests` flag is provided, these are run before any other actions.  
-If an `--fpath` argument is provided, the program builds an index on the file before entering a interactive command line interface. Type terms followed by enter to search for their frequency in the given source file.
+## Example Usage
+* `./bin/debug/wordfreq.out src/wordfreq.c 10 2 10`  
+    * Specify `src/wordsfreq.c` as the file to read by the program
+    * Include only words from the file that occur 10 or more times
+    * Include only words from the file that are 2 or more characters long
+    * Limit to max 10 results
+* `./bin/debug/wordfreq.out data/oxford_dict.txt 1 13 25`  
+    * Specify `data/oxford_dict.txt` as the file to read by the program
+    * Include words that occur at least once (all words)
+    * Include only words from the file that are 13 or more characters long
+    * Limit to max 25 results
+* `sh run.sh`  
+    * Runs either `bin/debug` or `bin/release`, whichever is available.
+    * Include words that occur at least once (all words)
+    * Include only words from the file that are 4 or more characters long
+    * Limit to max 10 results
 
-### Examples
-* `./<exec-path> --tests` - run tests before quitting
-* `./<exec-path> --fpath=README.md` - run the program with this README as input
-* `./<exec-path> --tests --fpath=src/main.c` - run tests, then run the program with its own source file as input
+
+# Testing your solution
+The text file at `data/oxford_dict.txt` is a text file containing roughly 30000 entries (418737 words) from the oxford english dictionary, and may be utilized to test the program. Any files containing text are accepted, however, as demonstrated above where the program is given its own source file, `wordfreq.c`, as input.
+
+The program will not work correctly unless the list implementation is working. An explicit check is performed to verify whether a call to `list_sort` actually sorted the list in question. 
+
+If the list implementation is working correctly, running the program with the args `data/oxford_dict.txt 1 4 10` (the arguments utilized by `run.sh`) will result in the following output:
+
+```log
+--- oxford_dict.txt | Words consisting of at least 4 chars ---
+Total number of words: 418737
+Number of distinct words: 56333
+
+--- Words that occured at least 1 times (limiting to max 10 results) ---
+TERM                             COUNT
+latin                          | 6293
+with                           | 6051
+from                           | 4858
+related                        | 3790
+person                         | 3479
+foll                           | 3323
+colloq                         | 3083
+french                         | 2356
+often                          | 2231
+english                        | 2094
+```
 
 
 # printing.h
