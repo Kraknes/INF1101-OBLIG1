@@ -247,30 +247,29 @@ void swap(lnode_t *a, lnode_t *b)
 }  
 
 void list_sort(list_t *list) {
+    printf("test");
     int swapped;
     lnode_t *start;
-    lnode_t *node_ptr = NULL;
     if (list->head == NULL)
     {
         printf("ERROR: list->head does not exist in list_sort");
-        return;
     }
     do {
         swapped = 0;
         start = list->head;
-        while (start->next != node_ptr)
+        while (start->next != list->tail->next)
         {
-            if (list->cmpfn(start->item,start->next->item) < 0)
+            if (list->cmpfn(start->item,start->next->item) > 0)
             {
                 swap(start, start->next);
                 swapped = 1;
             }
             start = start->next;
         }
-        node_ptr = start;
     }
     while(swapped);
     }
+
 
 
 
