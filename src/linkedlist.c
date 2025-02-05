@@ -241,19 +241,18 @@ int list_contains(list_t *list, void *item) {
 
 void swap(lnode_t *a, lnode_t *b)  
 {  
-    int temp = a->item;  
+    void *temp = a->item;  
     a->item = b->item;  
     b->item = temp;  
 }  
 
 void list_sort(list_t *list) {
     int swapped;
-    int i;
     lnode_t *start;
     lnode_t *node_ptr = NULL;
-    if (start == NULL)
+    if (list->head == NULL)
     {
-        printf("ERROR: list->head does not exist");
+        printf("ERROR: list->head does not exist in list_sort");
         return;
     }
     do {
@@ -261,17 +260,16 @@ void list_sort(list_t *list) {
         start = list->head;
         while (start->next != node_ptr)
         {
-            if (start->item > start->next->item)
+            if (list->cmpfn(start->item,start->next->item) < 0)
             {
                 swap(start, start->next);
                 swapped = 1;
             }
             start = start->next;
         }
-        node_ptr > start;
+        node_ptr = start;
     }
     while(swapped);
-
     }
 
 
@@ -281,7 +279,7 @@ list_iter_t *list_createiter(list_t *list) {
     iter->node = list->head;
     iter->list = list;
     if (iter == NULL){
-        printf("\nERROR: No iter created");
+        printf("\nERROR: No iter created in *list_createiter");
         return NULL;
     }
     else {
@@ -291,7 +289,7 @@ list_iter_t *list_createiter(list_t *list) {
 
 void list_destroyiter(list_iter_t *iter) {
     if (iter == NULL){
-        printf("\nERROR: No iter to destroy");
+        printf("\nERROR: No iter to destroy in list_destroyiter");
     }
     free(iter);
     iter = NULL;
@@ -316,7 +314,7 @@ void *list_next(list_iter_t *iter) {
 void list_resetiter(list_iter_t *iter) {
     if (iter->list->head == NULL)
     {
-        printf("\nERROR: List has no head to restart");
+        printf("\nERROR: List has no head to restart in list_resetiter");
     }
     
     iter->node = iter->list->head;    
