@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/Erling/OneDrive - UiT Office 365/INF-1101/Oblig 1/p1-pre/p1-pre",
-      "program": "c:/Users/Erling/OneDrive - UiT Office 365/INF-1101/Oblig 1/p1-pre/p1-pre/build/Debug/outDebug",
+      "cwd": "c:/Users/Erling/OneDrive - UiT Office 365/INF-1101/Oblig 1/p1-pre/p1-pre/src",
+      "program": "c:/Users/Erling/OneDrive - UiT Office 365/INF-1101/Oblig 1/p1-pre/p1-pre/src/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

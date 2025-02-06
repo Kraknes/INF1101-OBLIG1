@@ -97,7 +97,9 @@ static int test_map_create() {
 
 static int test_map_insert() {
     TEST_BEGIN(++TV.testno, TV.n_tests, "[Unique Keys]", map_insert, map_length);
-    for (size_t i = 0; i < N_TEST_ENTRIES; i++) {
+    for (size_t i = 0; i < N_TEST_ENTRIES; i++) 
+    
+    {
         TEST_ASSERT(map_length(TV.map) == i, "expected map_length of %zu, found %zu", i,
                     map_length(TV.map));
 
