@@ -42,7 +42,7 @@ map_t *map_create(cmp_fn cmpfn, hash64_fn hashfn) {
     map->capacity = SIZE_CAPACITY;
 
     // allokere minne til hash table * capacity (antatt antall på tilførsel)
-    map->hashtables = malloc(map->capacity * sizeof(h_node));
+    map->hashtables = malloc(map->capacity * sizeof(h_node *));
 
     // Hvis hashtable ikke får allokert minne ordentlig
     if (map->hashtables == NULL){
@@ -68,6 +68,7 @@ void map_destroy(struct map_t *map, free_fn val_freefn) {
         free(tmp);
         tmp = NULL;
     }
+    free(map->hashtables);
     free(map);
     map = NULL;
 }
@@ -106,12 +107,24 @@ void *map_insert(struct map_t *map, void *key, size_t key_size, void *value) {
     long long unsigned hashed_index = hashed_key % map->capacity;
 
     if (map->hashtables[hashed_index] != NULL)
-    {
+    {   
+        // LA TIL DENNE KOLLISJON FIKSEREN OM DETTE VAR PROBLEMET I --TEST, KAN FJERNES
+        if (map->cmpfn(map->hashtables[hashed_index]->key, map->head->key) == 0)
+        {
+            void *o_value = map->hashtables[hashed_index]->value;
+            free(map->hashtables[hashed_index]);
+            map->hashtables[hashed_index] = map->head;
+            return o_value;
+        }
+        else
+        // TIL HIT
+        {    
         return map->hashtables[hashed_index]->value;
+        }
     }
     else
     {
-        map->hashtables[hashed_index] = node;
+        map->hashtables[hashed_index] = map->head;
         // øker "lengden"/antall medlemmer av array
         map->length++;
         return NULL;
@@ -157,7 +170,6 @@ void *map_get(struct map_t *map, void *key) {
     }
 
     void *rt_value = map->hashtables[hashed_index]->value;
-    free(map->hashtables[hashed_index]);
     return rt_value;
 }
 
