@@ -107,6 +107,9 @@ static int enter_interactive_cli(map_t *freq_map) {
  */
 static map_t *create_termfreq_map(list_t *terms) {
 
+    // HVa skal skrives her?
+    // list_t 
+    
     pr_error("main.c: Function create_termfreq_map not implemented.\n");
 
 }
