@@ -130,6 +130,7 @@ void *map_insert(struct map_t *map, void *key, size_t key_size, void *value) {
             void *return_value = tmp->value;
             tmp->value = value;
             free(node);
+            node = NULL;
             return return_value;
         }
 
@@ -141,6 +142,7 @@ void *map_insert(struct map_t *map, void *key, size_t key_size, void *value) {
                 void *return_value = tmp->next->value;
                 tmp->next->value = value;
                 free(node);
+                node = NULL;
                 return return_value;
             }
             else
