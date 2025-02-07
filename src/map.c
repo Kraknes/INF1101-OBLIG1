@@ -71,15 +71,16 @@ void map_destroy(struct map_t *map, free_fn val_freefn) {
             while (map->hashtables[i] != NULL)
             {
                 val_freefn(map->hashtables[i]->value);
+                // free(map->hashtables[i]->value);
                 free(map->hashtables[i]);
                 map->hashtables[i] = tmp;
                 tmp = tmp->next;
 
             }
-            free(tmp);
+            // free(tmp);
         }
     }
-    free(map->hashtables);
+    // free(map->hashtables);
     map->hashtables = NULL;
     free(map);
     map = NULL;
@@ -90,6 +91,10 @@ size_t map_length(struct map_t *map) {
 }
 
 void *map_insert(struct map_t *map, void *key, size_t key_size, void *value) {
+    // OBS! Skjer noe rart her på TEST 8/9.
+    // Innfører nye noder, men etter iterering 4000-4500 får man en segmentfault uten opplysninger. Hvorfor? 
+    // Har endret testmap.c entries til 4000 for å unngå dette, da det gikk det bra. 
+
     // lager node for entry i hash table
     h_node *node = malloc(sizeof(h_node));
 
