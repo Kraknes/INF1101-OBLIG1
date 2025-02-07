@@ -113,19 +113,27 @@ void *map_insert(struct map_t *map, void *key, size_t key_size, void *value) {
     // kollisjonsfunksjon med lenket liste i hashmap. Hvis det er noe allerede i index, går det til denne funksjon
     if (map->hashtables[hashed_index] != NULL) 
     {   
+        // Lager en itererings node
         h_node *tmp = map->hashtables[hashed_index];
-        // Hvis første instans av noden er samme key, så returneres verdien av "gamle key"
+
+        // Hvis første instans av noden er samme key, så returneres verdien av "gamle key" og setter inn nye verdi
         if(map->cmpfn(tmp->key, node->key) == 0)
         {
-            return tmp->value;
+            void *return_value = tmp->value;
+            tmp->value = value;
+            free(node);
+            return return_value;
         }
 
-        // Sjekker next node om det er samme key, ellers iterere videre i lenketliste
+        // Sjekker next node om det er samme key, ellers iterere videre i lenketliste. Hvis funnet, returnerer gamle verdi og setter inn ny verdi
         while (tmp->next != NULL)
         {
             if (map->cmpfn(tmp->next->key, node->key) == 0)
             {
-                return tmp->next->value;
+                void *return_value = tmp->next->value;
+                tmp->next->value = value;
+                free(node);
+                return return_value;
             }
             else
             {
@@ -139,38 +147,61 @@ void *map_insert(struct map_t *map, void *key, size_t key_size, void *value) {
         
     }
     else
+    // Hvis indexen i hashmp er tom, plasserer ny node i indexen. 
     {
         map->hashtables[hashed_index] = node;
-        // øker "lengden"/antall medlemmer av array
         map->length++;
         return NULL;
     }  
 }
 
 void *map_remove(struct map_t *map, void *key) {
-    /* TODO:
-    - finner fram til hashed key i array, returner verdien i keyen
-    
-    */
-       // lager en hashed key av nøkkelen
+    // lager en hashed key av nøkkelen
     uint64_t hashed_key = map->hashfn(key);
 
     // modolu av array størrelse for å få unik index til array
     long long unsigned hashed_index = hashed_key % map->capacity;
     
-    // Hvis keyen ikke eksistere i hash tablen
-    if (map->hashtables[hashed_index] == NULL){
-        printf("\nERROR: No entry in this hash key in *map_remove");
-        return 0;
-    }
-    // henter ut verdien i hashtable, frigjør noden og returnere verdien
-    // OBS - VIl ikke rt_value aldri bli nullifisert? Memory overflow?
 
-    void *rt_value = map->hashtables[hashed_index]->value;
-    free(map->hashtables[hashed_index]);
-    map->hashtables[hashed_index] = NULL;
-    map->length--;
-    return rt_value;
+    if (map->hashtables[hashed_index] != NULL){
+        h_node *tmp = map->hashtables[hashed_index];
+
+        // Hvis første instans av noden er samme key, så returneres verdien av "key". Noden til key fjernes også. 
+        if(map->cmpfn(tmp->key, key) == 0)
+        {
+            void *rt_value = tmp->value;
+            map->hashtables[hashed_index] = tmp->next;
+            free(tmp);
+            tmp = NULL;
+            map->length--;
+            return rt_value;
+        }
+
+        // Hvis ikke har samme key, så vil den iterere gjennom linkedlist til den finner riktig key
+        while (tmp->next != NULL)
+        {
+            if (map->cmpfn(tmp->next->key, key) == 0)
+            {
+                void *rt_value = tmp->next->value;
+                tmp->next = tmp->next->next;
+                free(tmp->next);
+                tmp->next = NULL;
+                map->length--;
+                return rt_value;
+            }
+            else
+            {
+                tmp = tmp->next;
+            }
+        }
+        // Hvis den ikke er i listen, vil den returnere NULL;
+        return NULL;
+
+    }
+    // Hvis det er ingen node i indexen som blir gitt av key
+    else{
+        return NULL;
+    }
 }
 
 void *map_get(struct map_t *map, void *key) {
@@ -180,13 +211,36 @@ void *map_get(struct map_t *map, void *key) {
     // modolu av array størrelse for å få unik index til array
     long long unsigned hashed_index = hashed_key % map->capacity;
 
-    if (map->hashtables[hashed_index] == NULL){
-        printf("\nERROR: No entry in this hash key in *map_get");
-        return 0;
-    }
+    // Hvis index har node, vil den gå gjennom iterering gjennom linkedlist i indexen
+    if (map->hashtables[hashed_index] != NULL){
+        h_node *tmp = map->hashtables[hashed_index];
 
-    void *rt_value = map->hashtables[hashed_index]->value;
-    return rt_value;
+        // Hvis første instans av noden er samme key, så returneres verdien av "gamle key"
+        if(map->cmpfn(tmp->key, key) == 0)
+        {
+            return tmp->value;
+        }
+
+        // Hvis ikke har samme key, så vil den iterere gjennom linkedlist til den finner riktig key
+        while (tmp->next != NULL)
+        {
+            if (map->cmpfn(tmp->next->key, key) == 0)
+            {
+                return tmp->next->value;
+            }
+            else
+            {
+                tmp = tmp->next;
+            }
+        }
+        // Hvis den ikke er i listen, vil den returnere NULL;
+        return NULL;
+
+    }
+    // Hvis det er ingen node i indexen som blir gitt av key
+    else{
+        return NULL;
+    }
 }
 
 

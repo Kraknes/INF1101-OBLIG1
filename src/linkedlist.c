@@ -1,8 +1,8 @@
 
 #include "list.h"
+#include <stdio.h>
 
 #include <stdlib.h>
-
 
 typedef struct lnode lnode_t;
 struct lnode {
@@ -40,8 +40,14 @@ list_t *list_create(cmp_fn cmpfn) {
 }
 
 void list_destroy(list_t *list, free_fn item_free) {
+    for (size_t i = 0; i < list->length; i++)
+    {
+        lnode_t *tmp = list->head;
+        list->head = list->head->next;
+        item_free(tmp->item);
+        free(tmp);
+    }
     free(list);
-    free(item_free); // Denne må fikses!
 }
 
 size_t list_length(list_t *list) {
@@ -147,16 +153,132 @@ int list_contains(list_t *list, void *item) {
     return 0;
 }
 
+/* Prøvde å hente mergesort fra Oblig 0, men funket ikke*/
+
+// static lnode_t *merge(lnode_t *a, lnode_t *b, cmp_fn cmpfn) {
+//     lnode_t *head, *tail;
+
+//     /* Pick the smallest head node */
+//     if (cmpfn(a->item, b->item) < 0) {
+//         head = tail = a;
+//         a = a->next;
+//     } else {
+//         head = tail = b;
+//         b = b->next;
+//     }
+
+//     /* Now repeatedly pick the smallest head node */
+//     while (a && b) {
+//         if (cmpfn(a->item, b->item) < 0) {
+//             tail->next = a;
+//             tail = a;
+//             a = a->next;
+//         } else {
+//             tail->next = b;
+//             tail = b;
+//             b = b->next;
+//         }
+//     }
+
+//     /* Append the remaining non-empty list (if any) */
+//     if (a) {
+//         tail->next = a;
+//     } else {
+//         tail->next = b;
+//     }
+
+//     return head;
+// }
+
+// static lnode_t *splitlist(lnode_t *head) {
+//     /* Move two pointers, a 'slow' one and a 'fast' one which moves
+//      * twice as fast.  When the fast one reaches the end of the list,
+//      * the slow one will be at the middle.
+//      */
+//     lnode_t *slow = head;
+//     lnode_t *fast = head->next;
+
+//     while (fast != NULL && fast->next != NULL) {
+//         slow = slow->next;
+//         fast = fast->next->next;
+//     }
+
+//     /* Now 'cut' the list and return the second half */
+//     lnode_t *half = slow->next;
+//     slow->next = NULL;
+
+//     return half;
+// }
+
+
+// static lnode_t *mergesort_(lnode_t *head, cmp_fn cmpfn) {
+//     if (head->next == NULL) {
+//         return head;
+//     }
+
+
+//     lnode_t *half = splitlist(head);
+//     head = mergesort_(head, cmpfn);
+//     half = mergesort_(half, cmpfn);
+
+//     return merge(head, half, cmpfn);
+// }
+
+// void list_sort(list_t *list) {
+//     /* Recursively sort the list */
+//     list->head = mergesort_(list->head, list->cmpfn);
+
+//     /* Fix the tail and prev links */
+//     lnode_t *prev = NULL;
+//     for (lnode_t *n = list->head; n != NULL; n = n->next) {
+//         n->prev = prev;
+//         prev = n;
+//     }
+//     list->tail = prev;
+// }
+
+// Hentet ifra https://www.geeksforgeeks.org/c-program-bubble-sort-linked-list/
+
+void swap(lnode_t *a, lnode_t *b)  
+{  
+    void *temp = a->item;  
+    a->item = b->item;  
+    b->item = temp;  
+}  
+
 void list_sort(list_t *list) {
- // hva skal hit?
-}
+    printf("test");
+    int swapped;
+    lnode_t *start;
+    if (list->head == NULL)
+    {
+        printf("ERROR: list->head does not exist in list_sort");
+    }
+    do {
+        swapped = 0;
+        start = list->head;
+        while (start->next != list->tail->next)
+        {
+            if (list->cmpfn(start->item,start->next->item) > 0)
+            {
+                swap(start, start->next);
+                swapped = 1;
+            }
+            start = start->next;
+        }
+    }
+    while(swapped);
+    }
+
+
+
 
 list_iter_t *list_createiter(list_t *list) {
     list_iter_t *iter = malloc(sizeof(list_iter_t));
     iter->node = list->head;
     iter->list = list;
     if (iter == NULL){
-        printf("\nERROR: No iter created");
+        printf("\nERROR: No iter created in *list_createiter");
         return NULL;
     }
     else {
@@ -166,7 +288,7 @@ list_iter_t *list_createiter(list_t *list) {
 
 void list_destroyiter(list_iter_t *iter) {
     if (iter == NULL){
-        printf("\nERROR: No iter to destroy");
+        printf("\nERROR: No iter to destroy in list_destroyiter");
     }
     free(iter);
     iter = NULL;
@@ -191,7 +313,7 @@ void *list_next(list_iter_t *iter) {
 void list_resetiter(list_iter_t *iter) {
     if (iter->list->head == NULL)
     {
-        printf("\nERROR: List has no head to restart");
+        printf("\nERROR: List has no head to restart in list_resetiter");
     }
     
     iter->node = iter->list->head;    
