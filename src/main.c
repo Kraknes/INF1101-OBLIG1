@@ -33,6 +33,7 @@
 #define ARG_FPATH    "--fpath="
 #define CLI_CMD_EXIT ".exit"
 
+
 /**
  * @brief Enter the interactive part of the program.
  * @param freq_map: map of { key: char *, value: uint32_t }, where key refers to a term
@@ -105,12 +106,33 @@ static int enter_interactive_cli(map_t *freq_map) {
  * @note the caller retains ownership of the given list of terms, as well as any allocated strings
  * contained in the list.
  */
-static map_t *create_termfreq_map(list_t *terms) {
 
-    // HVa skal skrives her?
-    // list_t 
-    
-    pr_error("main.c: Function create_termfreq_map not implemented.\n");
+static map_t *create_termfreq_map(list_t *terms) {
+    // Lager hashmap
+    uint64_t hashfn = hash_string_fnv1a64;
+    cmp_fn cmpfn = charcmp;
+    map_t *map = map_create(cmpfn, hashfn);
+
+    list_iter_t *iter = list_createiter(terms);
+    if (!map || !iter){
+        return NULL;
+    }
+
+    int while_int = list_hasnext(iter);
+    while (while_int == 1){
+        void *word = list_next(iter);
+        int word_freq = map_get(map, word);
+        if (word_freq == NULL){
+            map_insert(map, word, NULL, 1);
+        }
+        else{
+            map_insert(map, word, NULL, word_freq+1);
+            word_freq = 0;
+        }
+        while_int = list_hasnext(iter);
+    }
+    list_destroyiter(iter);
+    return map;
 
 }
 

@@ -11,12 +11,17 @@
 
 #include <stdlib.h>
 
-struct list;
+struct lnode;
+typedef struct lnode lnode_t;
+
+typedef struct list list_t;
+// typedef struct list list_t;
 
 /**
  * Type of list. `list_t` is an alias for `struct list`
+ * 
  */
-typedef struct list list_t;
+
 
 /**
  * @brief Create a new, empty list that uses the given comparison function

@@ -34,7 +34,7 @@ map_t *map_create(cmp_fn cmpfn, hash64_fn hashfn) {
         printf("ERROR: Failed to malloc map_t in *map_create");
         return 0;
     }
-
+    // Legger til variabler
     map->hashfn = hashfn;
     map->cmpfn = cmpfn;
     map->length = 0;    
@@ -93,10 +93,10 @@ size_t map_length(struct map_t *map) {
 }
 
 void *map_insert(struct map_t *map, void *key, size_t key_size, void *value) {
-    // OBS! Skjer noe rart her på TEST 8/9.
-    // Innfører nye noder, men etter iterering 4000-4500 får man en segmentfault uten opplysninger. Hvorfor? 
-    // Har endret testmap.c entries til 4000 for å unngå dette, da det gikk det bra. 
 
+    if (key == NULL){
+        return NULL;
+    }
     // lager node for entry i hash table
     h_node *node = malloc(sizeof(h_node));
 
@@ -217,12 +217,16 @@ void *map_remove(struct map_t *map, void *key) {
 }
 
 void *map_get(struct map_t *map, void *key) {
+
+    // if (key == NULL){
+    //     return NULL;
+    // }
     // lager en hashed key av nøkkelen
     uint64_t hashed_key = map->hashfn(key);
 
     // modolu av array størrelse for å få unik index til array
     long long unsigned hashed_index = hashed_key % map->capacity;
-
+ 
     // Hvis index har node, vil den gå gjennom iterering gjennom linkedlist i indexen
     if (map->hashtables[hashed_index]){
         h_node *tmp = map->hashtables[hashed_index];
