@@ -10,8 +10,8 @@
 #define SIZE_CAPACITY 100000
 
 struct node{
-    void *key;
-    void *value;
+    char *key;
+    int *value;
     size_t key_size;
     struct node *next;
 };
@@ -93,7 +93,8 @@ size_t map_length(struct map_t *map) {
 }
 
 void *map_insert(struct map_t *map, void *key, size_t key_size, void *value) {
-
+    
+    // Hvis en NULL key blir gitt, returneres NULL for å unngå segment fault med hashing
     if (key == NULL){
         return NULL;
     }
@@ -106,9 +107,9 @@ void *map_insert(struct map_t *map, void *key, size_t key_size, void *value) {
     }
 
     // Setter inn variabler
-    node->key = key;
+    node->key = (char *) key; // skrev (char *) for å troubleshoote, er kanskje ikke vits
     node->next = NULL;
-    node->value = value;
+    node->value = (int *) value; // skrev (int *) for å troubleshoote, er kanskje ikke vits
     node->key_size = key_size;
 
 
@@ -218,9 +219,10 @@ void *map_remove(struct map_t *map, void *key) {
 
 void *map_get(struct map_t *map, void *key) {
 
-    // if (key == NULL){
-    //     return NULL;
-    // }
+    if (key == NULL){
+        return NULL;
+    }
+
     // lager en hashed key av nøkkelen
     uint64_t hashed_key = map->hashfn(key);
 
@@ -234,7 +236,7 @@ void *map_get(struct map_t *map, void *key) {
         // Hvis første instans av noden er samme key, så returneres verdien av "gamle key"
         if(map->cmpfn(tmp->key, key) == 0)
         {
-            return tmp->value;
+            return (int *) tmp->value;
         }
 
         // Hvis ikke har samme key, så vil den iterere gjennom linkedlist til den finner riktig key
@@ -242,7 +244,7 @@ void *map_get(struct map_t *map, void *key) {
         {
             if (map->cmpfn(tmp->next->key, key) == 0)
             {
-                return tmp->next->value;
+                return (int *) tmp->next->value;
             }
             else
             {

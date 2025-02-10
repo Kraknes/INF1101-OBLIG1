@@ -88,7 +88,7 @@ static int enter_interactive_cli(map_t *freq_map) {
             if (freq == NULL) {
                 printf("Term \"%s\" was not found\n", term);
             } else {
-                printf("Frequency of %s: %u\n", term, *freq);
+                printf("Frequency of %s: %u\n", term, freq); // ENDRET DENNE TIL freq fra *freq, da funket det 
             }
         }
         /* else, discard empty line */
@@ -108,6 +108,11 @@ static int enter_interactive_cli(map_t *freq_map) {
  */
 
 static map_t *create_termfreq_map(list_t *terms) {
+
+    // OPS! NOE RART SKJER I MAIN.C LINJE 179, ETTER FRIGJØRING AV LISTE SÅ SLETTES ALT I HASHMAPPEN
+    // VED Å FJERNE DEN , OG FJERNE freq* TIL freq I LINJE 91 SÅ FUNKET ALT. 
+    // MEN HVORFOR?
+
     // Lager hashmap
     uint64_t hashfn = hash_string_fnv1a64;
     cmp_fn cmpfn = charcmp;
@@ -122,16 +127,17 @@ static map_t *create_termfreq_map(list_t *terms) {
     while (while_int == 1){
         void *word = list_next(iter);
         int word_freq = map_get(map, word);
-        if (word_freq == NULL){
-            map_insert(map, word, NULL, 1);
-        }
-        else{
-            map_insert(map, word, NULL, word_freq+1);
-            word_freq = 0;
-        }
+        // if (word_freq == NULL){
+        //     map_insert(map, word, NULL, 1);
+        // }
+        // else{
+        //     map_insert(map, word, NULL, word_freq+1);
+        //     word_freq = 0;
+        // }
+        map_insert(map, word, NULL, word_freq+1);
         while_int = list_hasnext(iter);
     }
-    list_destroyiter(iter);
+    // list_destroyiter(iter);
     return map;
 
 }
@@ -172,7 +178,7 @@ int app_run_cli(const char *fpath) {
 
     /* Build a map from the list of terms, then destroy the list and all its values. */
     map_t *freq_map = create_termfreq_map(terms);
-    list_destroy(terms, free);
+    // list_destroy(terms, free);   // FJERNET DENNE SIDEN DEN GJORDE SLETTET ALT i HASHMAP
     if (!freq_map) {
         return -4;
     }

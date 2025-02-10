@@ -249,7 +249,6 @@ void swap(lnode_t *a, lnode_t *b)
 }  
 
 void list_sort(list_t *list) {
-    printf("test");
     int swapped;
     lnode_t *start;
     if (list->head == NULL)
