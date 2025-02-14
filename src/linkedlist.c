@@ -11,6 +11,7 @@ struct lnode {
     void *item;
 };
 
+
 struct list {
     lnode_t *head;
     lnode_t *tail;
@@ -18,6 +19,7 @@ struct list {
     cmp_fn cmpfn;
 };
 
+typedef struct list list_t;
 struct list_iter {
     list_t *list;
     lnode_t *node;
@@ -237,7 +239,7 @@ int list_contains(list_t *list, void *item) {
 //     list->tail = prev;
 // }
 
-// Hentet ifra https://www.geeksforgeeks.org/c-program-bubble-sort-linked-list/
+// Hentet ifra inspirasjon fra https://www.geeksforgeeks.org/c-program-bubble-sort-linked-list/
 
 void swap(lnode_t *a, lnode_t *b)  
 {  
@@ -247,7 +249,6 @@ void swap(lnode_t *a, lnode_t *b)
 }  
 
 void list_sort(list_t *list) {
-    printf("test");
     int swapped;
     lnode_t *start;
     if (list->head == NULL)
