@@ -1,19 +1,3 @@
-<<<<<<< HEAD
-/**
- * @authors
- * Steffen Viken Valvaag
- * Odin Bjerke <odin.bjerke@uit.no>
- */
-
-#include "list.h"
-#include "printing.h"
-
-#include <stdlib.h>
-
-
-// Previous linked-list implementation oblig 0
-// ./bin/debug/wordfreq data/oxford-dict.txt 20 4 10 --test
-=======
 
 #include "list.h"
 #include <stdio.h>
@@ -21,7 +5,6 @@
 
 
 // Hentet paramtere fra OBLIG 0
->>>>>>> master
 
 typedef struct lnode lnode_t;
 struct lnode {
@@ -30,10 +13,6 @@ struct lnode {
     void *item;
 };
 
-<<<<<<< HEAD
-=======
-
->>>>>>> master
 struct list {
     lnode_t *head;
     lnode_t *tail;
@@ -41,10 +20,7 @@ struct list {
     cmp_fn cmpfn;
 };
 
-<<<<<<< HEAD
-=======
 typedef struct list list_t;
->>>>>>> master
 struct list_iter {
     list_t *list;
     lnode_t *node;
@@ -67,20 +43,6 @@ list_t *list_create(cmp_fn cmpfn) {
 }
 
 void list_destroy(list_t *list, free_fn item_free) {
-<<<<<<< HEAD
-    
-    for (size_t i = 0; i < list->length; i++)
-    {   
-        lnode_t *tmp = list->head;
-        list->head = list->head->next;
-        item_free(tmp);
-    }
-    free(item_free); // Denne må fikses! Itemfree er en funksjon, bruk den på alle noder
-    free(list);
-}
-
-
-=======
     for (size_t i = 0; i < list->length; i++)
     {
         lnode_t *tmp = list->head;
@@ -91,7 +53,6 @@ void list_destroy(list_t *list, free_fn item_free) {
     free(list);
 }
 
->>>>>>> master
 size_t list_length(list_t *list) {
     if (list->length == 0) {
         return 0;
@@ -195,25 +156,6 @@ int list_contains(list_t *list, void *item) {
     return 0;
 }
 
-<<<<<<< HEAD
-void list_sort(list_t *list) {
- // hva skal hit? Hentet nedenfor fra Oblig 0, men vet ikke helt hva den gjrø
-
-    // bubblesort her 
-
-     /* Recursively sort the list */
-    // list->head = mergesort_(list->head, list->cmpfn);
-
-    // /* Fix the tail and prev links */
-    // lnode_t *prev = NULL;
-    // for (lnode_t *n = list->head; n != NULL; n = n->next) {
-    //     n->prev = prev;
-    //     prev = n;
-    // }
-    // list->tail = prev;
-}
-
-=======
 
 // Hentet ifra inspirasjon fra https://www.geeksforgeeks.org/c-program-bubble-sort-linked-list/
 
@@ -255,17 +197,12 @@ void list_sort(list_t *list) {
 }
 
 
->>>>>>> master
 list_iter_t *list_createiter(list_t *list) {
     list_iter_t *iter = malloc(sizeof(list_iter_t));
     iter->node = list->head;
     iter->list = list;
     if (iter == NULL){
-<<<<<<< HEAD
-        printf("\nERROR: No iter created");
-=======
         printf("\nERROR: No iter created in *list_createiter");
->>>>>>> master
         return NULL;
     }
     else {
@@ -275,11 +212,7 @@ list_iter_t *list_createiter(list_t *list) {
 
 void list_destroyiter(list_iter_t *iter) {
     if (iter == NULL){
-<<<<<<< HEAD
-        printf("\nERROR: No iter to destroy");
-=======
         printf("\nERROR: No iter to destroy in list_destroyiter");
->>>>>>> master
     }
     free(iter);
     iter = NULL;
@@ -304,11 +237,7 @@ void *list_next(list_iter_t *iter) {
 void list_resetiter(list_iter_t *iter) {
     if (iter->list->head == NULL)
     {
-<<<<<<< HEAD
-        printf("\nERROR: List has no head to restart");
-=======
         printf("\nERROR: List has no head to restart in list_resetiter");
->>>>>>> master
     }
     
     iter->node = iter->list->head;    

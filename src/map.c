@@ -2,28 +2,18 @@
 #include "defs.h"
 #include <stdio.h>
 #include "map.h"
-<<<<<<< HEAD
-=======
 #include <string.h>
->>>>>>> master
 
 // OBS HAR ENDRET PÅ MAP.H MED TYPEDEF FOR MAP_T, KAN HENDE AT DET ØDELEGGER TING FRAMOVER 
 
 // Hashmap opplegg: Key kan være ordet/string -->Sendes gjennom hasher--> får ut en minne til en verdi/count
 
-<<<<<<< HEAD
-#define SIZE_CAPACITY 100000;
-=======
 #define SIZE_CAPACITY 100000
->>>>>>> master
 
 struct node{
     void *key;
     void *value;
-<<<<<<< HEAD
-=======
     size_t key_size;
->>>>>>> master
     struct node *next;
 };
 typedef struct node h_node;
@@ -32,54 +22,25 @@ struct map_t{
     cmp_fn cmpfn;
     hash64_fn hashfn;
     size_t length;
-<<<<<<< HEAD
-    int capacity;
-    h_node *head;
-    struct node **hashtables;
-=======
     size_t capacity;
     struct node **hashtables; 
     int iterator;
->>>>>>> master
 };
 
 map_t *map_create(cmp_fn cmpfn, hash64_fn hashfn) {
     // Allokere minne til hashmap
     struct map_t *map = malloc(sizeof(struct map_t));
 
-<<<<<<< HEAD
-=======
     // Hvis mappen ikke blir allokert ordentlig
->>>>>>> master
     if (map == NULL){
         printf("ERROR: Failed to malloc map_t in *map_create");
         return 0;
     }
-<<<<<<< HEAD
-
-=======
     // Legger til variabler
->>>>>>> master
     map->hashfn = hashfn;
     map->cmpfn = cmpfn;
     map->length = 0;    
     map->capacity = SIZE_CAPACITY;
-<<<<<<< HEAD
-
-    // allokere minne til hash table * capacity (antatt antall på tilførsel)
-    map->hashtables = malloc(sizeof(h_node)*map->capacity);
-
-    if (map->hashtables == NULL){
-        printf("ERROR: Failed to malloc map->hashtable in *map_create");
-        return 0;
-    }
-
-    // setter alt av innhold til null for mer effetiv sjekk om index er tom
-    for (int i = 0; i < map->capacity; i++)
-    {
-        map->hashtables[i] = NULL;
-    }
-=======
     map->iterator = 0;
 
     // allokere minne til hash table * capacity (antatt antall på tilførsel). Bruker calloc for å sette alt til NULL;
@@ -91,21 +52,10 @@ map_t *map_create(cmp_fn cmpfn, hash64_fn hashfn) {
         return 0;
     }
 
->>>>>>> master
     return map;
 }
 
 void map_destroy(struct map_t *map, free_fn val_freefn) {
-<<<<<<< HEAD
-    
-    for (size_t i = 0; i < map->length; i++)
-    {   
-        h_node *tmp = map->head;
-        map->head = map->head->next;
-        val_freefn(tmp);
-        tmp = NULL;
-    }
-=======
     // itererer gjennom alle index i hashmapen
     for (size_t i = 0; i < map->capacity; i++)
     {   
@@ -137,7 +87,6 @@ void map_destroy(struct map_t *map, free_fn val_freefn) {
     }
     free(map->hashtables);
     map->hashtables = NULL;
->>>>>>> master
     free(map);
     map = NULL;
 }
@@ -147,24 +96,6 @@ size_t map_length(struct map_t *map) {
 }
 
 void *map_insert(struct map_t *map, void *key, size_t key_size, void *value) {
-<<<<<<< HEAD
-    /* TODO LIST:
-    1. Lage node av key og value
-    x. Må returnere 0 hvis alt gikk bra, eller returnere pointer til gamle key hvis det har blitt kollisjon
-    x. Finne ut av key_size, ka e funskjonen    
-    */
-
-    // lager node for entry i hash table
-    h_node *node = malloc(sizeof(h_node));
-
-    if (node == NULL){
-        printf("ERROR: Failed to malloc h_node in *map_insert");
-        return NULL;
-    }
-
-    node->key = key;
-    node->value = value;
-=======
     
     // Hvis en NULL key blir gitt, returneres NULL for å unngå segment fault med hashing
     if (key == NULL){
@@ -184,51 +115,11 @@ void *map_insert(struct map_t *map, void *key, size_t key_size, void *value) {
     node->value = (int*) value; // skrev (int *) for å troubleshoote, er kanskje ikke vits
     node->key_size = key_size;
 
->>>>>>> master
 
     // lager en hashed key av nøkkelen
     uint64_t hashed_key = map->hashfn(key);
 
     // modolu av array størrelse for å få unik index til array
-<<<<<<< HEAD
-    int hashed_index = hashed_key % map->capacity;
-
-    while (map->hashtables[hashed_index] != NULL)
-    {
-        return map->hashtables[hashed_index];
-    }
-    
-    map->hashtables[hashed_index] = node;
-
-    // øker "lengden"/antall medlemmer av array
-    map->length++;
-    return 0;
-}
-
-void *map_remove(struct map_t *map, void *key) {
-    /* TODO:
-    - finner fram til hashed key i array, returner verdien i keyen
-    
-    */
-       // lager en hashed key av nøkkelen
-    uint64_t hashed_key = map->hashfn(key);
-
-    // modolu av array størrelse for å få unik index til array
-    int hashed_index = hashed_key % map->capacity;
-    
-    // Hvis keyen ikke eksistere i hash tablen
-    if (map->hashtables[hashed_index] == NULL){
-        printf("ERROR: No entry in this hash key in *map_remove");
-        return 0;
-    }
-    // henter ut verdien i hashtable, frigjør noden og returnere verdien
-    void *rt_value = map->hashtables[hashed_index]->value;
-    free(map->hashtables[hashed_index]);
-    return rt_value;
-}
-
-void *map_get(struct map_t *map, void *key) {
-=======
     long long unsigned hashed_index = hashed_key % map->capacity;
 
     // kollisjonsfunksjon med lenket liste i hashmap. Hvis det er noe allerede i index, går det til denne funksjon
@@ -279,23 +170,10 @@ void *map_get(struct map_t *map, void *key) {
 }
 
 void *map_remove(struct map_t *map, void *key) {
->>>>>>> master
     // lager en hashed key av nøkkelen
     uint64_t hashed_key = map->hashfn(key);
 
     // modolu av array størrelse for å få unik index til array
-<<<<<<< HEAD
-    int hashed_index = hashed_key % map->capacity;
-
-    if (map->hashtables[hashed_index] == NULL){
-        printf("ERROR: No entry in this hash key in *map_get");
-        return 0;
-    }
-
-    void *rt_value = map->hashtables[hashed_index]->value;
-    free(map->hashtables[hashed_index]);
-    return rt_value;
-=======
     long long unsigned hashed_index = hashed_key % map->capacity;
     
 
@@ -388,7 +266,6 @@ void *map_get(struct map_t *map, void *key) {
     else{
         return NULL;
     }
->>>>>>> master
 }
 
 
