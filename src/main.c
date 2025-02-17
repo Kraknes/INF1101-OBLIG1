@@ -110,7 +110,7 @@ static int enter_interactive_cli(map_t *freq_map) {
 static map_t *create_termfreq_map(list_t *terms) {
 
     // OPS! NOE RART SKJER I MAIN.C LINJE 179, ETTER FRIGJØRING AV LISTE SÅ SLETTES ALT I HASHMAPPEN
-    // VED Å FJERNE DEN , OG FJERNE freq* TIL freq I LINJE 91 SÅ FUNKET ALT. 
+    // VED Å FJERNE DEN , OG ENDRE fra freq* TIL freq I LINJE 91 SÅ FUNKET ALT. 
     // MEN HVORFOR?
 
     // Lager hashmap
@@ -127,17 +127,10 @@ static map_t *create_termfreq_map(list_t *terms) {
     while (while_int == 1){
         void *word = list_next(iter);
         int word_freq = map_get(map, word);
-        // if (word_freq == NULL){
-        //     map_insert(map, word, NULL, 1);
-        // }
-        // else{
-        //     map_insert(map, word, NULL, word_freq+1);
-        //     word_freq = 0;
-        // }
         map_insert(map, word, NULL, word_freq+1);
         while_int = list_hasnext(iter);
     }
-    // list_destroyiter(iter);
+    list_destroyiter(iter);
     return map;
 
 }

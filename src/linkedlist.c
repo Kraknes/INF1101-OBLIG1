@@ -1,8 +1,10 @@
 
 #include "list.h"
 #include <stdio.h>
-
 #include <stdlib.h>
+
+
+// Hentet paramtere fra OBLIG 0
 
 typedef struct lnode lnode_t;
 struct lnode {
@@ -155,111 +157,36 @@ int list_contains(list_t *list, void *item) {
     return 0;
 }
 
-/* Prøvde å hente mergesort fra Oblig 0, men funket ikke*/
-
-// static lnode_t *merge(lnode_t *a, lnode_t *b, cmp_fn cmpfn) {
-//     lnode_t *head, *tail;
-
-//     /* Pick the smallest head node */
-//     if (cmpfn(a->item, b->item) < 0) {
-//         head = tail = a;
-//         a = a->next;
-//     } else {
-//         head = tail = b;
-//         b = b->next;
-//     }
-
-//     /* Now repeatedly pick the smallest head node */
-//     while (a && b) {
-//         if (cmpfn(a->item, b->item) < 0) {
-//             tail->next = a;
-//             tail = a;
-//             a = a->next;
-//         } else {
-//             tail->next = b;
-//             tail = b;
-//             b = b->next;
-//         }
-//     }
-
-//     /* Append the remaining non-empty list (if any) */
-//     if (a) {
-//         tail->next = a;
-//     } else {
-//         tail->next = b;
-//     }
-
-//     return head;
-// }
-
-// static lnode_t *splitlist(lnode_t *head) {
-//     /* Move two pointers, a 'slow' one and a 'fast' one which moves
-//      * twice as fast.  When the fast one reaches the end of the list,
-//      * the slow one will be at the middle.
-//      */
-//     lnode_t *slow = head;
-//     lnode_t *fast = head->next;
-
-//     while (fast != NULL && fast->next != NULL) {
-//         slow = slow->next;
-//         fast = fast->next->next;
-//     }
-
-//     /* Now 'cut' the list and return the second half */
-//     lnode_t *half = slow->next;
-//     slow->next = NULL;
-
-//     return half;
-// }
-
-
-// static lnode_t *mergesort_(lnode_t *head, cmp_fn cmpfn) {
-//     if (head->next == NULL) {
-//         return head;
-//     }
-
-
-//     lnode_t *half = splitlist(head);
-//     head = mergesort_(head, cmpfn);
-//     half = mergesort_(half, cmpfn);
-
-//     return merge(head, half, cmpfn);
-// }
-
-// void list_sort(list_t *list) {
-//     /* Recursively sort the list */
-//     list->head = mergesort_(list->head, list->cmpfn);
-
-//     /* Fix the tail and prev links */
-//     lnode_t *prev = NULL;
-//     for (lnode_t *n = list->head; n != NULL; n = n->next) {
-//         n->prev = prev;
-//         prev = n;
-//     }
-//     list->tail = prev;
-// }
 
 // Hentet ifra inspirasjon fra https://www.geeksforgeeks.org/c-program-bubble-sort-linked-list/
 
-void swap(lnode_t *a, lnode_t *b)  
+void swap(lnode_t *start, lnode_t *next)  
 {  
-    void *temp = a->item;  
-    a->item = b->item;  
-    b->item = temp;  
+    void *temp = start->item;  
+    start->item = next->item;  
+    next->item = temp;  
 }  
-
+// Bubblesort funksjon sorterer listen
 void list_sort(list_t *list) {
-    int swapped;
-    lnode_t *start;
-    if (list->head == NULL)
+    // Lager en variable som styrer om bubblesort skal termineres eller ikke
+    int swapped = 1;
+    // 
+    lnode_t *start = list->head;
+    if (start == NULL)
     {
         printf("ERROR: list->head does not exist in list_sort");
+        return;
     }
-    do {
+
+    // While funksjon som blir styrt av swapped. Hvis to elementer blir byttet i sorten, vil swapped forbli 1.
+    // Hvis det er ikke noe flere elementer som skal bli byttet vil swapped = 0, og da termineres while loopen. 
+    while(swapped == 1) {
         swapped = 0;
         start = list->head;
+        // While loop som initeres så lenge start noden er ikke det samme som siste node i listen
         while (start->next != list->tail->next)
         {
+            // Hvis start noden har en item større en neste i listen, vil de bytte plass
             if (list->cmpfn(start->item,start->next->item) > 0)
             {
                 swap(start, start->next);
@@ -268,10 +195,7 @@ void list_sort(list_t *list) {
             start = start->next;
         }
     }
-    while(swapped);
-    }
-
-
+}
 
 
 list_iter_t *list_createiter(list_t *list) {
