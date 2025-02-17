@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * @authors
  * Steffen Viken Valvaag
@@ -12,6 +13,15 @@
 
 // Previous linked-list implementation oblig 0
 // ./bin/debug/wordfreq data/oxford-dict.txt 20 4 10 --test
+=======
+
+#include "list.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+
+// Hentet paramtere fra OBLIG 0
+>>>>>>> master
 
 typedef struct lnode lnode_t;
 struct lnode {
@@ -20,6 +30,10 @@ struct lnode {
     void *item;
 };
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
 struct list {
     lnode_t *head;
     lnode_t *tail;
@@ -27,6 +41,10 @@ struct list {
     cmp_fn cmpfn;
 };
 
+<<<<<<< HEAD
+=======
+typedef struct list list_t;
+>>>>>>> master
 struct list_iter {
     list_t *list;
     lnode_t *node;
@@ -49,6 +67,7 @@ list_t *list_create(cmp_fn cmpfn) {
 }
 
 void list_destroy(list_t *list, free_fn item_free) {
+<<<<<<< HEAD
     
     for (size_t i = 0; i < list->length; i++)
     {   
@@ -61,6 +80,18 @@ void list_destroy(list_t *list, free_fn item_free) {
 }
 
 
+=======
+    for (size_t i = 0; i < list->length; i++)
+    {
+        lnode_t *tmp = list->head;
+        list->head = list->head->next;
+        item_free(tmp->item);
+        free(tmp);
+    }
+    free(list);
+}
+
+>>>>>>> master
 size_t list_length(list_t *list) {
     if (list->length == 0) {
         return 0;
@@ -164,6 +195,7 @@ int list_contains(list_t *list, void *item) {
     return 0;
 }
 
+<<<<<<< HEAD
 void list_sort(list_t *list) {
  // hva skal hit? Hentet nedenfor fra Oblig 0, men vet ikke helt hva den gjrø
 
@@ -181,12 +213,59 @@ void list_sort(list_t *list) {
     // list->tail = prev;
 }
 
+=======
+
+// Hentet ifra inspirasjon fra https://www.geeksforgeeks.org/c-program-bubble-sort-linked-list/
+
+void swap(lnode_t *start, lnode_t *next)  
+{  
+    void *temp = start->item;  
+    start->item = next->item;  
+    next->item = temp;  
+}  
+// Bubblesort funksjon sorterer listen
+void list_sort(list_t *list) {
+    // Lager en variable som styrer om bubblesort skal termineres eller ikke
+    int swapped = 1;
+    // 
+    lnode_t *start = list->head;
+    if (start == NULL)
+    {
+        printf("ERROR: list->head does not exist in list_sort");
+        return;
+    }
+
+    // While funksjon som blir styrt av swapped. Hvis to elementer blir byttet i sorten, vil swapped forbli 1.
+    // Hvis det er ikke noe flere elementer som skal bli byttet vil swapped = 0, og da termineres while loopen. 
+    while(swapped == 1) {
+        swapped = 0;
+        start = list->head;
+        // While loop som initeres så lenge start noden er ikke det samme som siste node i listen
+        while (start->next != list->tail->next)
+        {
+            // Hvis start noden har en item større en neste i listen, vil de bytte plass
+            if (list->cmpfn(start->item,start->next->item) > 0)
+            {
+                swap(start, start->next);
+                swapped = 1;
+            }
+            start = start->next;
+        }
+    }
+}
+
+
+>>>>>>> master
 list_iter_t *list_createiter(list_t *list) {
     list_iter_t *iter = malloc(sizeof(list_iter_t));
     iter->node = list->head;
     iter->list = list;
     if (iter == NULL){
+<<<<<<< HEAD
         printf("\nERROR: No iter created");
+=======
+        printf("\nERROR: No iter created in *list_createiter");
+>>>>>>> master
         return NULL;
     }
     else {
@@ -196,7 +275,11 @@ list_iter_t *list_createiter(list_t *list) {
 
 void list_destroyiter(list_iter_t *iter) {
     if (iter == NULL){
+<<<<<<< HEAD
         printf("\nERROR: No iter to destroy");
+=======
+        printf("\nERROR: No iter to destroy in list_destroyiter");
+>>>>>>> master
     }
     free(iter);
     iter = NULL;
@@ -221,7 +304,11 @@ void *list_next(list_iter_t *iter) {
 void list_resetiter(list_iter_t *iter) {
     if (iter->list->head == NULL)
     {
+<<<<<<< HEAD
         printf("\nERROR: List has no head to restart");
+=======
+        printf("\nERROR: List has no head to restart in list_resetiter");
+>>>>>>> master
     }
     
     iter->node = iter->list->head;    
