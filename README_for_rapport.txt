@@ -9,8 +9,12 @@ Spørsmål:
    --> Ta 1000 / på antall iterasjoner for å finne ord
    --> Dette vil være benchmark for O. Forhåpentligvis er det O(log n)
 
+   --> Liste på 5000
+   --> iterato
    --> Fra testmap er det 12345 ord 
    --> Hashmap har iterert 12359 ganger for å finne ord med array størrelse 100 000. 
+   --> 25000 ord
+   --> iterasjon på 25152
    --> test på 50000 ord
    --> iterator på 51698 ganger
    --> 51698 / 50000 = 1,03396 => O(1,03396) ~ O(1)

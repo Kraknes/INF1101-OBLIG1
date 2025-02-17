@@ -16,7 +16,7 @@
  * how many entries to test with? After passing with a low amount, try increasing drastically, to at least
  * something like 10000.
  */
-#define N_TEST_ENTRIES 50000
+#define N_TEST_ENTRIES 12345
 
 /**
  * whether or not to print a list of every generated value before starting the test.
