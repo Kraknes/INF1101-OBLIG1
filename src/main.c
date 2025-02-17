@@ -124,9 +124,10 @@ static map_t *create_termfreq_map(list_t *terms) {
 
     int while_int = list_hasnext(iter);
     while (while_int == 1){
-        void *word = list_next(iter);
-        int word_freq = map_get(map, word);
-        map_insert(map, word, NULL, word_freq+1);
+        void *word = list_next(iter); // Henter ordet fra noden i listen
+        void *word_copy = strdup(word); // Kopiere ordet fra listen til en ny pointer
+        void *word_freq = map_get(map, word_copy); // Finner ut frekvensen av ordet i hashmap, hvis ingen så blir variabellen 0. 
+        map_insert(map, word_copy, NULL, word_freq+1); // insert 
         while_int = list_hasnext(iter);
     }
     list_destroyiter(iter);
@@ -170,7 +171,7 @@ int app_run_cli(const char *fpath) {
 
     /* Build a map from the list of terms, then destroy the list and all its values. */
     map_t *freq_map = create_termfreq_map(terms);
-    // list_destroy(terms, free);   // FJERNET DENNE SIDEN DEN GJORDE SLETTET ALT i HASHMAP
+    list_destroy(terms, free);   
     if (!freq_map) {
         return -4;
     }

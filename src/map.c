@@ -10,6 +10,7 @@
 
 #define SIZE_CAPACITY 100000
 
+// M
 struct node{
     void *key;
     void *value;

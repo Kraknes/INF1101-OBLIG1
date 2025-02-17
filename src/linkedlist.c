@@ -191,7 +191,7 @@ void list_sort(list_t *list) {
                 swap(start, start->next);
                 swapped = 1;
             }
-            start = start->next;
+            start = start->next; // Hvis start noden er i riktige plassering i forhold til neste node, går funksjon videre til neste node. 
         }
     }
 }
