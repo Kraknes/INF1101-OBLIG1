@@ -108,10 +108,6 @@ static int enter_interactive_cli(map_t *freq_map) {
 
 static map_t *create_termfreq_map(list_t *terms) {
 
-    // OPS! NOE RART SKJER I MAIN.C LINJE 179, ETTER FRIGJØRING AV LISTE SÅ SLETTES ALT I HASHMAPPEN
-    // VED Å FJERNE DEN , OG ENDRE fra freq* TIL freq I LINJE 91 SÅ FUNKET ALT. 
-    // MEN HVORFOR?
-
     // Lager hashmap
     uint64_t hashfn = hash_string_fnv1a64;
     cmp_fn cmpfn = charcmp;

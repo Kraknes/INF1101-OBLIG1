@@ -10,7 +10,6 @@
 
 #define SIZE_CAPACITY 100000
 
-// M
 struct node{
     void *key;
     void *value;
@@ -25,7 +24,6 @@ struct map_t{
     size_t length;
     size_t capacity;
     struct node **hashtables; 
-    int iterator;
 };
 
 map_t *map_create(cmp_fn cmpfn, hash64_fn hashfn) {
@@ -42,7 +40,6 @@ map_t *map_create(cmp_fn cmpfn, hash64_fn hashfn) {
     map->cmpfn = cmpfn;
     map->length = 0;    
     map->capacity = SIZE_CAPACITY;
-    map->iterator = 0;
 
     // allokere minne til hash table * capacity (antatt antall på tilførsel). Bruker calloc for å sette alt til NULL;
     map->hashtables = calloc(map->capacity, sizeof(h_node *));
@@ -111,9 +108,9 @@ void *map_insert(struct map_t *map, void *key, size_t key_size, void *value) {
     }
 
     // Setter inn variabler
-    node->key = key; // skrev (char *) for å troubleshoote, er kanskje ikke vits
+    node->key = key; 
     node->next = NULL;
-    node->value = (int*) value; // skrev (int *) for å troubleshoote, er kanskje ikke vits
+    node->value = value; 
     node->key_size = key_size;
 
 
@@ -240,14 +237,12 @@ void *map_get(struct map_t *map, void *key) {
         // Hvis første instans av noden er samme key, så returneres verdien av "gamle key"
         if(map->cmpfn(tmp->key, key) == 0)
         {
-            map->iterator++;
             return tmp->value;
         }
 
         // Hvis ikke har samme key, så vil den iterere gjennom linkedlist til den finner riktig key
         while (tmp->next)
         {
-            map->iterator++;
             if (map->cmpfn(tmp->next->key, key) == 0)
             {
                 
