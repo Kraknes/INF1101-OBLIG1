@@ -33,7 +33,6 @@
 #define ARG_FPATH    "--fpath="
 #define CLI_CMD_EXIT ".exit"
 
-
 /**
  * @brief Enter the interactive part of the program.
  * @param freq_map: map of { key: char *, value: uint32_t }, where key refers to a term
@@ -109,10 +108,6 @@ static int enter_interactive_cli(map_t *freq_map) {
 
 static map_t *create_termfreq_map(list_t *terms) {
 
-    // OPS! NOE RART SKJER I MAIN.C LINJE 179, ETTER FRIGJØRING AV LISTE SÅ SLETTES ALT I HASHMAPPEN
-    // VED Å FJERNE DEN , OG ENDRE fra freq* TIL freq I LINJE 91 SÅ FUNKET ALT. 
-    // MEN HVORFOR?
-
     // Lager hashmap
     uint64_t hashfn = hash_string_fnv1a64;
     cmp_fn cmpfn = charcmp;
@@ -125,12 +120,13 @@ static map_t *create_termfreq_map(list_t *terms) {
 
     int while_int = list_hasnext(iter);
     while (while_int == 1){
-        void *word = list_next(iter);
-        int word_freq = map_get(map, word);
-        map_insert(map, word, NULL, word_freq+1);
+        void *word = list_next(iter); // Henter ordet fra noden i listen
+        void *word_copy = strdup(word); // Kopiere ordet fra listen til en ny pointer
+        void *word_freq = map_get(map, word_copy); // Finner ut frekvensen av ordet i hashmap, hvis ingen så blir variabellen 0. 
+        map_insert(map, word_copy, NULL, word_freq+1); // insert 
         while_int = list_hasnext(iter);
     }
-    // list_destroyiter(iter);
+    list_destroyiter(iter);
     return map;
 
 }
@@ -171,7 +167,7 @@ int app_run_cli(const char *fpath) {
 
     /* Build a map from the list of terms, then destroy the list and all its values. */
     map_t *freq_map = create_termfreq_map(terms);
-    // list_destroy(terms, free);   // FJERNET DENNE SIDEN DEN GJORDE SLETTET ALT i HASHMAP
+    list_destroy(terms, free);   
     if (!freq_map) {
         return -4;
     }
