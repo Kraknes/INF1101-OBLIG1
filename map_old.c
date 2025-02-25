@@ -8,7 +8,7 @@
 
 // Hashmap opplegg: Key kan være ordet/string -->Sendes gjennom hasher--> får ut en minne til en verdi/count
 
-#define SIZE_CAPACITY 1000
+#define SIZE_CAPACITY 100000
 
 struct node{
     void *key;
@@ -52,7 +52,7 @@ map_t *map_create(cmp_fn cmpfn, hash64_fn hashfn) {
 
     return map;
 }
-// ødelegger map
+
 void map_destroy(struct map_t *map, free_fn val_freefn) {
     // itererer gjennom alle index i hashmapen
     for (size_t i = 0; i < map->capacity; i++)
@@ -89,96 +89,11 @@ void map_destroy(struct map_t *map, free_fn val_freefn) {
     map = NULL;
 }
 
-
-// returnere map->length
 size_t map_length(struct map_t *map) {
     return map->length;
 }
 
-// ødelegger hashtable
-void hashtable_destroy(struct map_t *map) {
-    // itererer gjennom alle index i hashmapen
-    for (size_t i = 0; i < map->capacity; i++)
-    {   
-        // Hvis ingenting i index, går videre.
-        if (map->hashtables[i] == NULL)
-        {
-            continue;
-        }
-        // Ellers blir den å iterere gjennom alle nodene i lenketliste i indexen
-        else
-        {
-            h_node *tmp = map->hashtables[i]->next;
-            while (map->hashtables[i] != NULL)
-            {
-                // frigjører value, og noden i plasseringen i index.
-                free(map->hashtables[i]);
-                map->hashtables[i] = NULL;
-                // En sjekk for at tmp ikke er null før man iterer videre.
-                if (tmp != NULL){
-                    map->hashtables[i] = tmp;
-                    tmp = tmp->next;
-                }
-            }
-            free(tmp);
-            tmp = NULL;
-            
-        }
-    }
-    free(map->hashtables);
-    map->hashtables = NULL;
-}
-    // Auto allokering av stærre hashtable hvis antall inserts går over 70% av størrelsen av originale hashtable. 
-    // Gjør hashtable dobbel så stor
-void *new_hashtable(struct map_t *map){
-    int new_cap = map->capacity * 2; // Omordne til ny kapasitet størrelse (2x)
-
-    struct node **new_hashtable = calloc(new_cap, sizeof(h_node *)); // Lager ny hashtable, dobbel så stor
-
-    for (size_t i = 0; i < map->capacity; i++) // Itererer gjennom alle i forrige hashtable og plasserer i den nyeste
-    {
-        h_node *iter_node = map->hashtables[i];
-
-        while (iter_node != NULL)
-        {
-            uint64_t hashed_key = map->hashfn(iter_node->key);
-            long long unsigned hashed_index = hashed_key % new_cap; // hasher gamle key til ny hashtable
-
-            if (new_hashtable[hashed_index] == NULL) // Om plassen er ledig
-            {  
-                h_node *new_node = calloc(1, sizeof(h_node)); // lager ny node av den gamle noden
-                new_node->key = iter_node->key;
-                new_node->value = iter_node->value;
-                new_node->key_size = iter_node->key_size;
-                new_hashtable[hashed_index] = new_node;
-                iter_node = iter_node->next;
-            }
-            else // hvis ikke må det itereres til neste ledige plass
-            { 
-                h_node *tmp = new_hashtable[hashed_index];
-                while (tmp->next != NULL){
-                    tmp = tmp->next;
-                }
-                h_node *new_node = calloc(1, sizeof(h_node)); // lager ny node av den gamle noden
-                new_node->key = iter_node->key; 
-                new_node->value = iter_node->value;
-                new_node->key_size = iter_node->key_size;
-                tmp->next = new_node;
-                iter_node  = iter_node->next; //går til neste node hvis det er flere i listen
-            }
-        }
-    }
-    hashtable_destroy(map); // ødelegger gamle hashtable
-    map->capacity = new_cap; // setter den nye kapasitet over den gamle
-    map->hashtables = new_hashtable; // legger til ny hashtable
-}
-
 void *map_insert(struct map_t *map, void *key, size_t key_size, void *value) {
-
-    if (((float)(map->length)/(float)(map->capacity)) > 0.7 ) // Hvis hashtable er over en gitt størrelse, skal den økes for å unngå for mye lenket liste
-    {
-        new_hashtable(map);
-    }
     
     // Hvis en NULL key blir gitt, returneres NULL for å unngå segment fault med hashing
     if (key == NULL){

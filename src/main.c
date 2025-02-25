@@ -108,11 +108,12 @@ static int enter_interactive_cli(map_t *freq_map) {
 
 static map_t *create_termfreq_map(list_t *terms) {
 
-    // Lager hashmap
+    // Lager Hashmap strukturen
     uint64_t hashfn = hash_string_fnv1a64;
     cmp_fn cmpfn = charcmp;
     map_t *map = map_create(cmpfn, hashfn);
 
+    // Lager en iter for å iterere gjennom lenket-liste
     list_iter_t *iter = list_createiter(terms);
     if (!map || !iter){
         return NULL;
@@ -121,9 +122,9 @@ static map_t *create_termfreq_map(list_t *terms) {
     int while_int = list_hasnext(iter);
     while (while_int == 1){
         void *word = list_next(iter); // Henter ordet fra noden i listen
-        void *word_copy = strdup(word); // Kopiere ordet fra listen til en ny pointer
+        void *word_copy = strdup(word); // Kopiere ordet fra listen til en ny pointer (siden lenket liste blir frigjort etterpå, og da blir ordet også fjernet)
         void *word_freq = map_get(map, word_copy); // Finner ut frekvensen av ordet i hashmap, hvis ingen så blir variabellen 0. 
-        map_insert(map, word_copy, NULL, word_freq+1); // insert 
+        map_insert(map, word_copy, NULL, word_freq+1); // Insert antallet for ordet, uansett hva word_freq er blir det lagt til +1 ekstra i value (antall av ordet)
         while_int = list_hasnext(iter);
     }
     list_destroyiter(iter);
