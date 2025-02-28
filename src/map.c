@@ -4,11 +4,8 @@
 #include "map.h"
 #include <string.h>
 
-// OBS HAR ENDRET PÅ MAP.H MED TYPEDEF FOR MAP_T, KAN HENDE AT DET ØDELEGGER TING FRAMOVER 
 
-// Hashmap opplegg: Key kan være ordet/string -->Sendes gjennom hasher--> får ut en minne til en verdi/count
-
-#define SIZE_CAPACITY 1000
+#define SIZE_CAPACITY 10 // Satt lavt for dynamisk hashmap, må endres til et høyere tall for statisk hashmap
 
 struct node{
     void *key;
@@ -24,6 +21,7 @@ struct map_t{
     size_t length;
     size_t capacity;
     struct node **hashtables; 
+    int iterator;
 };
 
 map_t *map_create(cmp_fn cmpfn, hash64_fn hashfn) {
@@ -40,6 +38,7 @@ map_t *map_create(cmp_fn cmpfn, hash64_fn hashfn) {
     map->cmpfn = cmpfn;
     map->length = 0;    
     map->capacity = SIZE_CAPACITY;
+    map->iterator = 0;
 
     // allokere minne til hash table * capacity (antatt antall på tilførsel). Bruker calloc for å sette alt til NULL;
     map->hashtables = calloc(map->capacity, sizeof(h_node *));
@@ -95,42 +94,52 @@ size_t map_length(struct map_t *map) {
     return map->length;
 }
 
-// ødelegger hashtable
+// Ødelegger hashtable. Funksjonen blir brukt for dynamisk hashtable dannelse funksjon. 
+// Ødelegger forrige og lager en ny og større en.  
 void hashtable_destroy(struct map_t *map) {
     // itererer gjennom alle index i hashmapen
     for (size_t i = 0; i < map->capacity; i++)
     {   
-        // Hvis ingenting i index, går videre.
-        if (map->hashtables[i] == NULL)
+        // Hvis ingen node i index, går videre til neste index.
+        if (!map->hashtables[i])
         {
             continue;
         }
-        // Ellers blir den å iterere gjennom alle nodene i lenketliste i indexen
-        else
+        else // Ellers blir den å iterere gjennom alle nodene i lenketliste i indexen
         {
             h_node *tmp = map->hashtables[i]->next;
-            while (map->hashtables[i] != NULL)
+            while (map->hashtables[i]) // Så lenge det er noe i den posisjonen, så vil den fortsette
             {
                 // frigjører value, og noden i plasseringen i index.
                 free(map->hashtables[i]);
                 map->hashtables[i] = NULL;
                 // En sjekk for at tmp ikke er null før man iterer videre.
-                if (tmp != NULL){
-                    map->hashtables[i] = tmp;
+                if (tmp){
+                    map->hashtables[i] = tmp; // Legger den i indexen, slik at while loopen fortsetter
                     tmp = tmp->next;
                 }
             }
             free(tmp);
             tmp = NULL;
-            
         }
     }
-    free(map->hashtables);
+    free(map->hashtables); // Ødelegger hashtablen
     map->hashtables = NULL;
 }
-    // Auto allokering av stærre hashtable hvis antall inserts går over 70% av størrelsen av originale hashtable. 
-    // Gjør hashtable dobbel så stor
-void *new_hashtable(struct map_t *map){
+
+// Lager ny node. En del av hashtable creation function.
+// Lager en ny node av samme pekere som eksisterte i forrige hashmap utenom ->next, siden den kan endre seg i den nye hashmap
+h_node *create_newnode(h_node *node){
+    h_node *new_node = calloc(1, sizeof(h_node)); 
+    new_node->key = node->key;
+    new_node->value = node->value;
+    new_node->key_size = node->key_size;
+    return new_node;
+}
+
+// Auto allokering av større hashtable hvis antall inserts går over 70% av størrelsen av originale hashtable. 
+// Gjør hashtable dobbel så stor
+void new_hashtable(struct map_t *map){
     int new_cap = map->capacity * 2; // Omordne til ny kapasitet størrelse (2x)
 
     struct node **new_hashtable = calloc(new_cap, sizeof(h_node *)); // Lager ny hashtable, dobbel så stor
@@ -139,17 +148,14 @@ void *new_hashtable(struct map_t *map){
     {
         h_node *iter_node = map->hashtables[i];
 
-        while (iter_node != NULL)
+        while(iter_node)
         {
             uint64_t hashed_key = map->hashfn(iter_node->key);
             long long unsigned hashed_index = hashed_key % new_cap; // hasher gamle key til ny hashtable
 
-            if (new_hashtable[hashed_index] == NULL) // Om plassen er ledig
+            if (!new_hashtable[hashed_index]) // Om plassen er ledig
             {  
-                h_node *new_node = calloc(1, sizeof(h_node)); // lager ny node av den gamle noden
-                new_node->key = iter_node->key;
-                new_node->value = iter_node->value;
-                new_node->key_size = iter_node->key_size;
+                h_node *new_node = create_newnode(iter_node);
                 new_hashtable[hashed_index] = new_node;
                 iter_node = iter_node->next;
             }
@@ -159,10 +165,7 @@ void *new_hashtable(struct map_t *map){
                 while (tmp->next != NULL){
                     tmp = tmp->next;
                 }
-                h_node *new_node = calloc(1, sizeof(h_node)); // lager ny node av den gamle noden
-                new_node->key = iter_node->key; 
-                new_node->value = iter_node->value;
-                new_node->key_size = iter_node->key_size;
+                h_node *new_node = create_newnode(iter_node);
                 tmp->next = new_node;
                 iter_node  = iter_node->next; //går til neste node hvis det er flere i listen
             }
@@ -175,7 +178,9 @@ void *new_hashtable(struct map_t *map){
 
 void *map_insert(struct map_t *map, void *key, size_t key_size, void *value) {
 
-    if (((float)(map->length)/(float)(map->capacity)) > 0.7 ) // Hvis hashtable er over en gitt størrelse, skal den økes for å unngå for mye lenket liste
+    // Hvis hashtable er over en gitt størrelse, skal den økes for å unngå for mye lenket liste
+    // Kan kommenteres ut for å ha en statisk hashmap, men da må SIZE_CAPACITY endres slik at hashmappen er stor nok for antall insertions.
+    if (((float)(map->length)/(float)(map->capacity)) > 0.7 ) 
     {
         new_hashtable(map);
     }
@@ -185,7 +190,7 @@ void *map_insert(struct map_t *map, void *key, size_t key_size, void *value) {
         return NULL;
     }
     // lager node for entry i hash table
-    h_node *node = malloc(sizeof(h_node));
+    h_node *node = calloc(1, sizeof(h_node));
 
     // Hvis noe galt skjer med allokering av minne
     if (node == NULL){
@@ -194,7 +199,6 @@ void *map_insert(struct map_t *map, void *key, size_t key_size, void *value) {
 
     // Setter inn variabler
     node->key = key; 
-    node->next = NULL;
     node->value = value; 
     node->key_size = key_size;
 
@@ -227,10 +231,10 @@ void *map_insert(struct map_t *map, void *key, size_t key_size, void *value) {
             if (map->cmpfn(tmp->next->key, node->key) == 0)
             {
                 void *return_value = tmp->next->value;
-                tmp->next->value = value;
-                free(node);
+                tmp->next->value = value; 
+                free(node); // frigjører opprettelsen av ny node siden den ikke trengs å brukes
                 node = NULL;
-                return return_value;
+                return return_value; // Returnere forrige verdi
             }
             else
             {
@@ -321,7 +325,8 @@ void *map_get(struct map_t *map, void *key) {
 
         // Hvis første instans av noden er samme key, så returneres verdien av "gamle key"
         if(map->cmpfn(tmp->key, key) == 0)
-        {
+        {   
+            map->iterator++;
             return tmp->value;
         }
         // Hvis ikke har samme key, så vil den iterere gjennom linkedlist til den finner riktig key
@@ -329,10 +334,12 @@ void *map_get(struct map_t *map, void *key) {
         {
             if (map->cmpfn(tmp->next->key, key) == 0)
             {
+                map->iterator++;
                 return tmp->next->value;
             }
             else
             {
+                map->iterator++;
                 tmp = tmp->next;
             }
         }
